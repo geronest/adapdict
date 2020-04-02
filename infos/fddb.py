@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
 import random
 import numpy as np
+import pickle as pkl
 from infos import MeanInfo, WordInfo
 
 class FreqDictDB():
@@ -9,9 +11,42 @@ class FreqDictDB():
         self.methods_sel = ['sort', 'sample']
     
     def add_word(self, word):
-        self.words[word.name] = word
-        #self.words[word] = WordInfo(word)
+        try:
+            if word.name in self.words.keys():
+                num_newmeans = 0
+                t_wd = self.words[word.name]
+                for pos in word.pos:
+                    if pos in t_wd.pos:
+                        idx_pos = t_wd.pos.index(pos)
+                        t_ms = t_wd.means[idx_pos]
+                        t_msm = [x.mean for x in t_ms]
+                        for mi in word.means[word.pos.index(pos)]:
+                            if mi.mean not in t_msm: 
+                                t_wd.add_mean(mi, idx_pos)
+                                num_newmeans += 1
+                    else:
+                        t_wd.add_pos(pos)
+                        for mi in word.means[word.pos.index(pos)]:
+                            t_wd.add_mean(mi)
+                            num_newmeans += 1
+                # print("FreqDictDB/add_word: {} already existed. {} new meanings added".format(word.name, num_newmeans))    
+                return True # Already existed
+            else:
+                self.words[word.name] = word
+                return False
+        except Exception as e:
+            print("[ERROR | FreqDictDB/add_word()] {}, {}".format(word, str(e)))
 
+    def exist_word(self, w):
+        res = w in self.words.keys()
+        return res
+
+    def search_word(self, s): # s could be a substring of the target word(s)
+        res = list()
+        for w in list(self.words.keys()):
+            if s in w: res.append(w)
+        return res
+    
     def view_word(self, word):
         curr_word = self.words[word]
         curr_word.print_all()
@@ -25,10 +60,15 @@ class FreqDictDB():
 
         for wd in lw:
             wd.print_part(num_means, num_subs, num_exs)
+            print("")
     
     def view_all(self):
         for word in self.words.keys():
             self.view_word(word)
+    
+    def view_words(self):
+        for word in self.words.keys():
+            print(word)
 
     def viewl_all(self, l):
         for word in l:
@@ -75,3 +115,21 @@ class FreqDictDB():
                 res.append(cand_words[idxs[i]])
 
             return res
+
+
+
+if __name__ == '__main__':
+    def load_fddb(path):
+        res = None
+        try:
+            res = pkl.load(open(path, 'rb'))
+            print("main/load_fddb: successfully loaded {}, {} words".format(path, len(res.words.keys())))
+        except Exception as e:
+            print("[ERROR | main/load_fddb] {}".format(str(e)))
+        return res
+    path_fddb = './test_check.fddb'
+    fddb = load_fddb(path_fddb)
+    #fddb.view_word('record')
+    #print(fddb.search_word('serendip'))
+    fddb.view_all()
+    fddb.view_words()
