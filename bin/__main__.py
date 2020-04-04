@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from fddb import FreqDictDB
-from GetWordProcess import GetWordProcess
-from CSVParser import CSVParser
+from infos.fddb import FreqDictDB
+from parsers.GetWordProcess import GetWordProcess
+from parsers.CSVParser import CSVParser
 import multiprocessing as mp
 import pickle as pkl
 import time

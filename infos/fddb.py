@@ -127,9 +127,9 @@ if __name__ == '__main__':
         except Exception as e:
             print("[ERROR | main/load_fddb] {}".format(str(e)))
         return res
-    path_fddb = './test_check.fddb'
+    path_fddb = 'dbs/cd_gre.fddb'
     fddb = load_fddb(path_fddb)
     #fddb.view_word('record')
     #print(fddb.search_word('serendip'))
-    fddb.view_all()
+    # fddb.view_all()
     fddb.view_words()
