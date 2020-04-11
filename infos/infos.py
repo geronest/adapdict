@@ -19,17 +19,19 @@ class MeanInfo():
     def print_ex(self, num_ex, indent = "  "):
         print(indent + "  ex {}: {}".format(num_ex, self.exs[num_ex]))
 
-    def print_part(self, idx_mean, num_subs = 3, num_exs = 3, indent = "  "):
-        self.print_mean(idx_mean, indent)
-        ne = min(num_exs, len(self.exs))
+    def print_part(self, idx_mean, show_mean = True, num_subs = 3, num_exs = 3, indent = "  "):
+        if show_mean: self.print_mean(idx_mean, indent)
+        if num_exs < 0: ne = len(self.exs)
+        else: ne = min(num_exs, len(self.exs))
         idx_sele = np.sort(np.random.choice(len(self.exs), ne, replace = False))
         for ise in idx_sele:
             self.print_ex(ise, indent)
         
-        ns = min(num_subs, len(self.subs))
+        if num_subs < 0: ns = len(self.subs)
+        else: ns = min(num_subs, len(self.subs))
         idx_sels = np.sort(np.random.choice(len(self.subs), ns, replace = False))
         for iss in idx_sels:
-            self.subs[iss].print_part(iss, num_subs, num_exs, indent + "  ")
+            self.subs[iss].print_part(iss, show_mean, num_subs, num_exs, indent + "  ")
 
     def print_all(self, num_mean = '1', indent = "  "):
         self.print_mean(num_mean, indent)
@@ -97,16 +99,17 @@ class WordInfo():
     def print_origin(self):
         if len(self.origin):print("  Origin: {}".format(self.origin))
         
-    def print_part(self, num_means = 3, num_subs = 3, num_exs = 3):
+    def print_part(self, show_mean = True, num_means = 3, num_subs = 3, num_exs = 3):
         self.print_name()
         for idx_pos in range(len(self.pos)):
             self.print_pos(idx_pos)
             wdm = self.means[idx_pos]
-            nm = min(num_means, len(wdm))
+            if num_means < 0: nm = len(wdm)
+            else: nm = min(num_means, len(wdm))
             idx_selm = np.random.choice(len(wdm), nm, replace=False)
 
             for ism in idx_selm:
-                wdm[ism].print_part(ism, num_subs, num_exs)
+                wdm[ism].print_part(ism, show_mean, num_subs, num_exs)
         self.print_ph(self.phrases, "phrases")
         self.print_ph(self.phrasalverbs, "phrasal verbs")        
         self.print_origin()
@@ -121,9 +124,10 @@ class WordInfo():
         self.print_ph(self.phrasalverbs, "phrasal verbs")
         self.print_origin()
 
-    def view_this(self):
+    def view_this(self, prt = False):
         self.viewnum += 1
         self.impfactor += 1
+        if prt: print("{}: viewnum {}, impfactor {}".format(self.name, self.viewnum, self.impfactor))
 
     def check_rem(self, rem = False):
         if rem:

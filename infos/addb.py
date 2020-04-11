@@ -2,9 +2,27 @@
 import random
 import numpy as np
 import pickle as pkl
-from infos import MeanInfo, WordInfo
+from infos.infos import MeanInfo, WordInfo
 
-class FreqDictDB():
+def load_addb(path):
+    res = None
+    try:
+        res = pkl.load(open(path, 'rb'))
+        print("load_addb: successfully loaded {}, {} words".format(path, len(res.words.keys())))
+    except Exception as e:
+        print("[ERROR | main/load_addb] {}".format(str(e)))
+    return res
+
+def save_addb(addb, path):
+    try:
+        pkl.dump(addb, open(path, 'wb'))
+        print("save_addb: successfully saved {}, {} words]".format(path, len(addb.words.keys())))
+    except Exception as e:
+        print("[ERROR | main/save_addb] {}".format(str(e)))
+
+    return
+
+class AdapDictDB():
     def __init__(self):
         self.words = dict()
         self.criteria_sel = ['impf', 'vn', 'random']
@@ -29,13 +47,13 @@ class FreqDictDB():
                         for mi in word.means[word.pos.index(pos)]:
                             t_wd.add_mean(mi)
                             num_newmeans += 1
-                # print("FreqDictDB/add_word: {} already existed. {} new meanings added".format(word.name, num_newmeans))    
+                # print("AdapDictDB/add_word: {} already existed. {} new meanings added".format(word.name, num_newmeans))    
                 return True # Already existed
             else:
                 self.words[word.name] = word
                 return False
         except Exception as e:
-            print("[ERROR | FreqDictDB/add_word()] {}, {}".format(word, str(e)))
+            print("[ERROR | AdapDictDB/add_word()] {}, {}".format(word, str(e)))
 
     def exist_word(self, w):
         res = w in self.words.keys()
@@ -119,17 +137,17 @@ class FreqDictDB():
 
 
 if __name__ == '__main__':
-    def load_fddb(path):
+    def load_addb(path):
         res = None
         try:
             res = pkl.load(open(path, 'rb'))
-            print("main/load_fddb: successfully loaded {}, {} words".format(path, len(res.words.keys())))
+            print("main/load_addb: successfully loaded {}, {} words".format(path, len(res.words.keys())))
         except Exception as e:
-            print("[ERROR | main/load_fddb] {}".format(str(e)))
+            print("[ERROR | main/load_addb] {}".format(str(e)))
         return res
-    path_fddb = 'dbs/cd_gre.fddb'
-    fddb = load_fddb(path_fddb)
-    #fddb.view_word('record')
-    #print(fddb.search_word('serendip'))
-    # fddb.view_all()
-    fddb.view_words()
+    path_addb = 'dbs/cd_gre.addb'
+    addb = load_addb(path_addb)
+    #addb.view_word('record')
+    #print(addb.search_word('serendip'))
+    # addb.view_all()
+    addb.view_words()
