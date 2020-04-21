@@ -3,6 +3,7 @@ import random
 import numpy as np
 import pickle as pkl
 from infos.infos import MeanInfo, WordInfo
+from infos.stmn import *
 
 def load_addb(path):
     res = None

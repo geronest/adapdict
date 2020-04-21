@@ -23,8 +23,10 @@ def save_wordsfailed(path, wf):
     except Exception as e:
         print("[ERROR | main/save_wordsfailed] {}".format(str(e)))
 
-path_csv = './csvs/words_gre.csv'
-path_sname = 'wgre2'
+path_csv = './csvs/ph0.csv'
+path_sname = 'ph0'
+# path_csv = './test_ph.wf'
+# path_sname = 'testph0'
 path_addb = './dbs/{}.addb'.format(path_sname)
 path_wf = './{}.wf'.format(path_sname)
 num_gwp = 1

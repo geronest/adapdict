@@ -60,14 +60,21 @@ class CSVParser():
     def process_file(self):
         res = dict()
         for row in self.reader:
-            d_wds = polish_words(row[1])
-            extra_info = ','.join(row[2:])
+            if len(row) > 0:
+                if len(row) > 1:
+                    d_wds = polish_words(row[1])
+                    extra_info = ','.join(row[2:])
+                    v_impf = row[0]
+                else:
+                    d_wds = polish_words(row[0])
+                    extra_info = ''
+                    v_impf = 4.0
 
-            res[d_wds['word']] = [row[0], extra_info]
+            res[d_wds['word']] = [v_impf, extra_info]
             for wd in d_wds['synonyms']:
-                res[wd] = [row[0], extra_info]
+                res[wd] = [v_impf, extra_info]
             for wd in d_wds['antonyms']:
-                res[wd] = [row[0], "ANTONYM OF THE FOLLOWING: " + extra_info]
+                res[wd] = [v_impf, "ANTONYM OF THE FOLLOWING: " + extra_info]
 
         return res
 

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+from infos.stmn import *
 
 class MeanInfo():
     def __init__(self, mean):
@@ -14,7 +15,7 @@ class MeanInfo():
         self.subs.append(MeanInfo(sub))
 
     def print_mean(self, num_mean, indent = "  "):
-        print(indent + "[Meaning {}: {}]".format(num_mean, self.mean))
+        print(indent + "[" + s_green("Meaning {}: ".format(num_mean)) + "{}]".format(self.mean))
 
     def print_ex(self, num_ex, indent = "  "):
         print(indent + "  ex {}: {}".format(num_ex, self.exs[num_ex]))
@@ -83,10 +84,10 @@ class WordInfo():
         self.origin += origin
 
     def print_name(self):
-        print("[Word : {} (importance factor {})]".format(self.name, self.impfactor))
+        print("[Word : {} (importance factor {})]".format(s_yellow(s_bold(self.name)), self.impfactor))
 
     def print_pos(self, idx_pos):
-        print("  [{}-{}]".format(self.name, self.pos[idx_pos]))
+        print("  [{}-{}]".format(self.name, s_red(self.pos[idx_pos])))
 
     def print_ph(self, phs, type_ph = "phrase"):
         if phs:
@@ -97,7 +98,7 @@ class WordInfo():
             print(res)
 
     def print_origin(self):
-        if len(self.origin):print("  Origin: {}".format(self.origin))
+        if len(self.origin):print(bytes(s_bold("  Origin: ") + self.origin, 'raw_unicode_escape').decode('utf-8') )
         
     def print_part(self, show_mean = True, num_means = 3, num_subs = 3, num_exs = 3):
         self.print_name()
@@ -112,6 +113,7 @@ class WordInfo():
                 wdm[ism].print_part(ism, show_mean, num_subs, num_exs)
         self.print_ph(self.phrases, "phrases")
         self.print_ph(self.phrasalverbs, "phrasal verbs")        
+        print("")
         self.print_origin()
 
     def print_all(self):
