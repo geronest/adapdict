@@ -6,15 +6,6 @@ import multiprocessing as mp
 import pickle as pkl
 import time
 
-
-def prepare_words(cw, iw):
-    assert len(cand_words) == len(impf_words)
-    res = dict()
-    for i in range(len(cand_words)):
-        res[cand_words[i]] = impf_words[i]
-
-    return res
-
 def save_wordsfailed(path, wf):
     try:
         f_save = open(path, 'w')
