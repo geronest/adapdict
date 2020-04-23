@@ -47,7 +47,7 @@ class GetWordProcess(mp.Process):
                     continue
 
                 target = target.replace(' ', '_')
-                print("attempting {}".format(target))
+                # print("attempting {}".format(target))
                 url_target = 'https://www.lexico.com/en/definition/{}'.format(target)
             
                 retry = False

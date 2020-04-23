@@ -63,7 +63,7 @@ class AdapDictDB():
     def search_word(self, s): # s could be a substring of the target word(s)
         res = list()
         for w in list(self.words.keys()):
-            if s in w: res.append(w)
+            if s in w.lower(): res.append(w)
         return res
     
     def view_word(self, word):

@@ -60,9 +60,10 @@ class MainManager():
             elif ipt_split[0] == 'find':
                 try:
                     print("will try to find {}".format(s_yellow(ipt_split[1])))
-                    if self.addb.exist_word(ipt_split[1].replace('_', ' ')):
-                        self.addb.words[ipt_split[1]].print_part(show_mean = True, num_means = -1)
-                        self.addb.words[ipt_split[1]].view_this(True)
+                    w_to_find = ipt_split[1].replace('_', ' ')
+                    if self.addb.exist_word(w_to_find):
+                        self.addb.words[w_to_find].print_part(show_mean = True, num_means = -1)
+                        self.addb.words[w_to_find].view_this(True)
                         self.num_words_seen += 1
                     else:
                         print("finding {} failed, below are the search results in the DB".format(s_yellow(ipt_split[1])))
@@ -70,14 +71,21 @@ class MainManager():
                         for w in res_search:
                             print("  " + s_yellow(w))
                         
-                        print("\ntrying to add {} to DB...".format(s_yellow(ipt_split[1])))
-                        res_pw = self.pm.parse_word(ipt_split[1])
-                        if res_pw[0] > 0:
-                            print("succeeded to add {} to DB".format(s_yellow(str(res_pw[1]))))
-                            self.num_words_added += 1
-                        else: 
-                            print(s_red("failed") + " to add {} to DB".format(s_yellow(ipt_split[1])))
-                        
+                        while True:
+                            chk_add = input("would you like to get data for {} from the internet? (y/n): ".format(s_yellow(ipt_split[1])))
+                            if chk_add == 'y':
+                                print("\ntrying to add {} to DB...".format(s_yellow(ipt_split[1])))
+                                res_pw = self.pm.parse_word(ipt_split[1])
+                                if res_pw[0] > 0:
+                                    print("succeeded to add {} to DB".format(s_yellow(str(res_pw[1]))))
+                                    self.num_words_added += 1
+                                else: 
+                                    print(s_red("failed") + " to add {} to DB".format(s_yellow(ipt_split[1])))
+                                break
+
+                            elif chk_add == 'n':
+                                break
+
                     input("enter anything to continue")
 
                 except Exception as e:
