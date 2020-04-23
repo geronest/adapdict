@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
+
 from infos.stmn import *
 from infos.addb import AdapDictDB, load_addb, save_addb
 from quizzers.quizzer import Quizzer
-from ParsingManager import ParsingManager
+from bin.ParsingManager import ParsingManager
 
 class MainManager():
     def __init__(self, name_addb = 'default'):
@@ -11,28 +13,36 @@ class MainManager():
 
         self.pm = ParsingManager(self.addb, self.path_addb, name_addb)
         self.quizzer = Quizzer(self.addb, self.path_addb)
+        self.num_run_quiz = 0
+        self.num_words_seen = 0
+        self.num_words_added = 0
 
     def mainloop(self):
         while True:
 
-            s_ipt =  s_yellow(s_bold("### AdapDict ###"))
-                    + "what do you want to do?\n"
-                    + "  \"{}\": adaptive word quiz\n".format(s_green("quiz"))
-                    + "  \"{}\": search or add a single WORD in the DB. put \'_\' instead of space for WORD like \'see_about\'.\n".format(s_green("find WORD"))
-                    + "  \"{}\": add words in the csvs/NAME_CSV in the DB. you can skip including \'.csv\'.\n".format(s_green("add NAME_CSV"))
-                    + "  \"{}\": quit. will save the changes made automatically\n".format(s_green("quit"))
+            s_ipt =  s_yellow(s_bold("\n### AdapDict ###\n")) + \
+                    "{} words in DB, {} words added | {} quizzes run, {} words viewed\n".format(s_green(str(len(self.addb.words.keys()))), s_green(str(self.num_words_added)), s_green(str(self.num_run_quiz)), s_green(str(self.num_words_seen)) ) + \
+                    s_yellow("############\n\n") + \
+                    "what do you want to do?\n" + \
+                    "  \"{}\": adaptive word quiz\n".format(s_green("quiz")) + \
+                    "  \"{}\": search or add a single WORD in the DB. put \'_\' instead of space for WORD like \'see_about\'.\n".format(s_green("find WORD"))  + \
+                    "  \"{}\": add words in the csvs/NAME_CSV in the DB. you can skip including \'.csv\'.\n".format(s_green("add NAME_CSV"))  + \
+                    "  \"{}\": quit. will save the changes made automatically\n".format(s_green("quit")) + \
+                    "\nyour input: "
 
             ipt = input(s_ipt)
+            print("")
 
             ipt_split = ipt.split(' ')
             if ipt_split[0] == 'quiz':
-                s_ipt_quiz = "options in the form of \"NUM_WORD(5~100) SORT_CRITERION(\'impf\' or \'vn\') SELECTION(\'sort\' or \'sample\')\"\n"
-                             + "(default: 10 impf sample) : "
+                s_ipt_quiz = "options in the form of \"NUM_WORD(5~100) SORT_CRITERION(\'impf\' or \'vn\') SELECTION(\'sort\' or \'sample\')\"\n"  + \
+                             "(default: 10 impf sample) : "
                 opt0 = input(s_ipt_quiz)
                 try:
                     opt0_split = opt0.split(' ')
                     n_wds = int(opt0_split[0])
                     if n_wds > 4 and n_wds < 101: opt1 = [n_wds]
+                    else: opt1.append(10)
                     if opt0_split[1] in ['impf', 'vn']: opt1.append(opt0_split[1])
                     else: opt1.append('impf')
                     if opt0_split[2] in ['sort', 'sample']: opt1.append(opt0_split[1])
@@ -40,22 +50,33 @@ class MainManager():
                 except:
                     print("set to default option, \'10 impf sample\'")
                     opt1 = [10, 'impf', 'sample']
-                self.quizzer.quiz_sample(opt1[0], opt1[1], opt1[2])
+                try:
+                    self.quizzer.quiz_sample(opt1[0], opt1[1], opt1[2])
+                    self.num_run_quiz += 1
+                except:
+                    print(s_yellow("\nthere was an error trying to prepare quiz!\n") + "try checking if the DB is empty: {} words".format(len(self.addb.words.keys())))
+                    input("enter anything to continue")
 
             elif ipt_split[0] == 'find':
                 try:
                     print("will try to find {}".format(s_yellow(ipt_split[1])))
-                    if self.addb.exist_word(ipt_split[1]):
+                    if self.addb.exist_word(ipt_split[1].replace('_', ' ')):
                         self.addb.words[ipt_split[1]].print_part(show_mean = True, num_means = -1)
                         self.addb.words[ipt_split[1]].view_this(True)
+                        self.num_words_seen += 1
                     else:
                         print("finding {} failed, below are the search results in the DB".format(s_yellow(ipt_split[1])))
                         res_search = self.addb.search_word(ipt_split[1])
                         for w in res_search:
-                            print("  " + s_yellow(w.name))
-                        print("")
-                        if self.ParsingManager.parse_word(ipt_split[1]):
-                            print("succeeded to add {} to DB".format(s_yellow(ipt_split[1])))
+                            print("  " + s_yellow(w))
+                        
+                        print("\ntrying to add {} to DB...".format(s_yellow(ipt_split[1])))
+                        res_pw = self.pm.parse_word(ipt_split[1])
+                        if res_pw[0] > 0:
+                            print("succeeded to add {} to DB".format(s_yellow(str(res_pw[1]))))
+                            self.num_words_added += 1
+                        else: 
+                            print(s_red("failed") + " to add {} to DB".format(s_yellow(ipt_split[1])))
                         
                     input("enter anything to continue")
 
@@ -65,7 +86,7 @@ class MainManager():
 
             elif ipt_split[0] == 'add':
                 try:
-                    self.ParsingManager.parse_csv(ipt_split[1])
+                    self.num_words_added += self.pm.parse_csv(ipt_split[1])
 
                     input("enter anything to continue")
 
@@ -77,3 +98,8 @@ class MainManager():
                 self.quizzer.update_addb()
                 print("bye!")
                 break
+
+if __name__ == '__main__':
+
+    mm = MainManager('words_gre_5')
+    mm.mainloop()

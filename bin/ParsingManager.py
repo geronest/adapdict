@@ -26,24 +26,29 @@ class ParsingManager():
 
     def parse_word(self, w, t_wait = 10):
         self.iqueue.put(w)
+        self.iqueue.put('FINISHED')
         gwp = GetWordProcess(self.mlock, self.iqueue, self.oqueue)
         gwp.start()
 
         words_failed = list()
         t_parse = time.time()
-        res = False
+        num_words_added = 0
+        words_added = list()
 
-        while time.time() - t_parse < t_wait:
+        while True:
             if self.oqueue.qsize() > 0:
                 rw = self.oqueue.get()
                 if rw:
                     if isinstance(rw, list) and rw[0] == 'FINISHED': 
                         words_failed += rw[1]
+                        print("words failed: {}".format(words_failed))
+                        break
                     else: 
                         try:
                             if not self.addb.add_word(rw): 
                                 self.addb.words[rw.name].set_impf(4)
-                                res = True
+                                num_words_added += 1
+                                words_added.append(rw.name)
                             else:
                                 print("{} is already in addb?".format(rw.name))
                                 
@@ -55,7 +60,7 @@ class ParsingManager():
         gwp.terminate()
         gwp.join()
 
-        return res
+        return [num_words_added, words_added]
 
     def parse_csv(self, name_csv = 'default'):
         path_csv = './csvs/{}.csv'.format(name_csv)
@@ -74,6 +79,7 @@ class ParsingManager():
         words_failed = list()
         
         num_finished_words = 0
+        num_words_existed = 0
         num_test = 0
         num_twords = len(cands_word.keys())
         num_to_print = max(int(num_twords / 50), 1)
@@ -87,6 +93,7 @@ class ParsingManager():
             if len(cws) > 0 and self.oqueue.qsize() < num_words_per_iteration:
                 for cw in cws[:num_words_per_iteration]:
                     if not self.addb.exist_word(cw): self.iqueue.put(cw)
+                    else: num_words_existed += 1
                     # cws.remove(cw)
                     time.sleep(0.001)
                 cws = cws[num_words_per_iteration:]
@@ -131,11 +138,12 @@ class ParsingManager():
 
         time_getwords = time.time() - time_getwords
 
-        print("\n\n\n{:.3f} seconds passed for retrieving {} words".format(time_getwords, num_twords))
+        print("\n\n\n{:.3f} seconds passed for processing {} words".format(time_getwords, num_twords))
+        print("{} of them already existed".format(num_words_existed))
         print("words_failed: {}".format(words_failed))
 
         save_addb(self.addb, self.path_addb)
-        save_wordsfailed(self.path_wf, words_failed)
+        self.save_wordsfailed(self.path_wf, words_failed)
         print("\n")
         
         for cw in cands_word:
@@ -143,4 +151,6 @@ class ParsingManager():
                 print("\"{}\" is not in addb!".format(cw))
 
         # self.addb.view_words()
+
+        return num_finished_words
         

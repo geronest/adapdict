@@ -3,7 +3,7 @@ import requests_html, time, random
 from parsers.LexicoHTMLParser import LexicoHTMLParser
 
 class GetWordProcess(mp.Process):
-    def __init__(self, mlock, iqueue, oqueue):
+    def __init__(self, mlock, iqueue, oqueue, max_retry = 3):
         super(GetWordProcess, self).__init__()
         self.lock = mlock
         self.iqueue = iqueue
@@ -11,7 +11,7 @@ class GetWordProcess(mp.Process):
         self.lhp = LexicoHTMLParser()
         self.words_to_get = list()
         self.sess = requests_html.HTMLSession()
-        self.max_retry = 3
+        self.max_retry = max_retry
         self.max_sleep = 3
         self.t_sleep = 20
 
@@ -47,6 +47,7 @@ class GetWordProcess(mp.Process):
                     continue
 
                 target = target.replace(' ', '_')
+                print("attempting {}".format(target))
                 url_target = 'https://www.lexico.com/en/definition/{}'.format(target)
             
                 retry = False
