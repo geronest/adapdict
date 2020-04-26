@@ -45,7 +45,7 @@ class MainManager():
                     else: opt1.append(10)
                     if opt0_split[1] in ['impf', 'vn']: opt1.append(opt0_split[1])
                     else: opt1.append('impf')
-                    if opt0_split[2] in ['sort', 'sample']: opt1.append(opt0_split[1])
+                    if opt0_split[2] in ['sort', 'sample']: opt1.append(opt0_split[2])
                     else: opt1.append('sample')
                 except:
                     print("set to default option, \'10 impf sample\'")
