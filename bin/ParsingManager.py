@@ -25,10 +25,12 @@ class ParsingManager():
             print("[ERROR | main/save_wordsfailed] {}".format(str(e)))
 
     def parse_word(self, w, t_wait = 10):
-        self.iqueue.put(w)
-        self.iqueue.put('FINISHED')
+        
         gwp = GetWordProcess(self.mlock, self.iqueue, self.oqueue)
         gwp.start()
+
+        self.iqueue.put(w)
+        self.iqueue.put('FINISHED')
 
         words_failed = list()
         t_parse = time.time()
