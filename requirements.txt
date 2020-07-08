@@ -1,2 +1,2 @@
 numpy
-requrests-html
+requests-html
